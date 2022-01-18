@@ -1,0 +1,25 @@
+@charset "UTF-8";
+
+/*********************
+ * App Notifications *
+ *********************/
+
+.app-notification,
+.app-notification.frame {
+	@extend %osd;
+	padding: 10px;
+	border-top-width: 0px;
+	border-radius: 0px 0px 3px 3px;
+	&:backdrop {
+		background-image: none;
+	}
+	button {
+		@include neobutton(normal);
+		&.flat {
+			@include neobutton(toolbutton);
+		}
+	}
+	border {
+		border: none;
+	}
+}

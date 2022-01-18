@@ -1,0 +1,381 @@
+@charset "UTF-8";
+
+// buttons
+
+@mixin btn-highlight($c) {
+	$bg: gtk("@theme_button_background_normal");
+	$fg: gtk("@theme_button_foreground_normal");
+
+	background-color: gtkalpha($c, 0.2);
+	border-color: gtkmix($c, gtkmix($bg, $fg, 0.333), 0.5);
+}
+
+@mixin bg-gradient($bg) {
+	background: linear-gradient(
+		180deg,
+		gtkmix($bg, white, 0.03125) 0%,
+		$bg 50%,
+		gtkmix($bg, black, 0.03125) 100%
+	);
+}
+
+@mixin linked() {
+	border-right-style: none;
+	border-radius: 0;
+
+	&:first-child {
+		border-top-left-radius: $r;
+		border-bottom-left-radius: $r;
+	}
+	&:last-child {
+		border-right-style: solid;
+		border-top-right-radius: $r;
+		border-bottom-right-radius: $r;
+	}
+
+	&:only-child {
+		border-style: solid;
+		border-radius: $r;
+	}
+}
+
+@mixin linked-side() {
+	&:focus {
+		+ entry {
+			border-left-color: gtk(
+				"@theme_view_active_decoration_color"
+			);
+		}
+		+ button {
+			border-left-color: gtk(
+				"@theme_button_decoration_focus"
+			);
+		}
+	}
+	&:hover {
+		+ entry {
+			border-left-color: gtk(
+				"@theme_view_active_decoration_color"
+			);
+		}
+		+ button {
+			border-left-color: gtk(
+				"@theme_button_decoration_hover"
+			);
+		}
+	}
+}
+
+// button styles mixin: $t is normal or toolbutton
+@mixin neobutton($t) {
+	&.suggested-action {
+		@include btn-highlight(
+			gtk("@theme_button_decoration_focus")
+		);
+	}
+	&.destructive-action {
+		@include btn-highlight(gtk("@error_color"));
+	}
+
+	@if $t == normal {
+		box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.125);
+		text-shadow: none;
+		-gtk-icon-shadow: none;
+
+		color: gtk("@theme_button_foreground_normal");
+		border-color: gtk("@borders");
+		@include bg-gradient(
+			gtk("@theme_button_background_normal")
+		);
+
+		&:backdrop {
+			color: gtk("@theme_button_foreground_backdrop");
+			border-color: gtk("@unfocused_borders");
+			background: gtk("@theme_button_background_backdrop");
+		}
+
+		&:checked {
+			background: gtkalpha(
+				gtk("@theme_button_foreground_normal"),
+				0.125
+			);
+		}
+
+		&:active {
+			background: gtkalpha(
+				gtk("@theme_button_decoration_hover"),
+				0.333
+			);
+		}
+
+		&:hover {
+			border-color: gtk("@theme_button_decoration_hover");
+		}
+
+		&:focus {
+			border-color: gtk("@theme_button_decoration_focus");
+		}
+
+		&:disabled {
+			box-shadow: none;
+			color: gtk("@theme_button_foreground_insensitive");
+			border-color: gtk("@insensitive_borders");
+			background: gtk(
+				"@theme_button_background_insensitive"
+			);
+
+			&:active,
+			&:checked {
+				color: gtk(
+					"@theme_button_foreground_active_insensitive"
+				);
+			}
+		}
+	} @else if $t == toolbutton {
+		border-color: transparent;
+		background: transparent;
+		background-color: transparent;
+		background-image: none;
+		box-shadow: none;
+		color: gtk("@theme_button_foreground_normal");
+
+		text-shadow: none;
+		-gtk-icon-shadow: none;
+
+		&:checked {
+			border-color: gtkmix(
+				gtk("@theme_button_background_normal"),
+				gtk("@theme_button_foreground_normal"),
+				0.3
+			);
+			background-color: gtkalpha(
+				gtk("@theme_button_foreground_normal"),
+				0.125
+			);
+		}
+
+		&:active {
+			border-color: gtk("@theme_button_decoration_hover");
+			background-color: gtkalpha(
+				gtk("@theme_button_decoration_hover"),
+				0.333
+			);
+		}
+
+		&:hover {
+			border-color: gtk("@theme_button_decoration_hover");
+		}
+
+		&:focus {
+			border-color: gtk("@theme_button_decoration_focus");
+		}
+	}
+}
+
+/***********
+ * Buttons *
+ ***********/
+
+// stuff for .needs-attention
+$_dot_color: gtk("@theme_button_decoration_focus");
+@keyframes needs_attention {
+	from {
+		background-image: radial-gradient(
+			circle,
+			$_dot_color 0%,
+			transparent 5px
+		);
+	}
+	to {
+		background-image: radial-gradient(
+			circle,
+			gtk("@theme_selected_bg_color") 0%,
+			transparent 6px
+		);
+	}
+}
+
+%buttons {
+	border: 1px solid;
+	border-radius: $r;
+	padding: 6px 6px;
+	background-clip: border-box;
+
+	@include neobutton(normal);
+	&.flat {
+		@include neobutton(toolbutton);
+	}
+
+	separator {
+		background-color: transparent;
+		background-image: none;
+		color: transparent;
+	}
+}
+%button,
+button {
+	@at-root %button_basic,
+		& {
+		@extend %buttons;
+		&.osd {
+			@extend %buttons;
+		}
+		//overlay / OSD style
+		.osd & {
+			//@extend %buttons;
+		}
+
+		&.image-button {
+			min-width: 16px;
+			padding: 6px;
+		}
+
+		&.text-button {
+			padding-left: 6px;
+			padding-right: 6px;
+		}
+
+		&.text-button.image-button {
+			padding-left: 6px;
+			padding-right: 6px;
+			label {
+				padding-left: 6px;
+				padding-right: 6px;
+			}
+		}
+		// FIXME
+		// &:drop(active) {
+		//   color: $drop_target_color;
+		//   border-color: $drop_target_color;
+		//   box-shadow: inset 0 0 0 1px $drop_target_color;
+		// }
+	}
+
+	@at-root %button_selected,
+		& {
+		row:selected & {
+			border-color: gtk("@theme_selected_bg_color");
+
+			&.flat:not(:active):not(:checked):not(:hover):not(disabled) {
+				color: gtk("@theme_selected_fg_color");
+				border-color: transparent;
+
+				&:backdrop {
+					color: gtk("@theme_unfocused_selected_fg_color");
+				}
+			}
+		}
+	}
+
+	.stack-switcher > & {
+		// to position the needs attention dot, padding is added to the button
+		// child, a label needs just lateral padding while an icon needs vertical
+		// padding added too.
+		> label {
+			padding-left: 6px; // label padding
+			padding-right: 6px; //
+		}
+		> image {
+			padding-left: 6px; // image padding
+			padding-right: 6px; //
+			padding-top: 3px; //
+			padding-bottom: 3px; //
+		}
+		&.text-button {
+			padding: 6px; // needed or it will get overridden
+		}
+		&.image-button {
+			// we want image buttons to have a 1:1 aspect ratio, so compensation
+			// of the padding added to the GtkImage is needed
+			padding: 3px 0px;
+		}
+		&.needs-attention > label,
+		&.needs-attention > image {
+			@extend %needs_attention;
+		}
+		&.needs-attention:active > label,
+		&.needs-attention:active > image,
+		&.needs-attention:focus > label,
+		&.needs-attention:focus > image,
+		&.needs-attention:checked > label,
+		&.needs-attention:checked > image {
+			animation: none;
+			background-image: none;
+		}
+	}
+
+	//inline-toolbar buttons
+	.inline-toolbar &,
+	.inline-toolbar &:backdrop {
+		border-radius: $r;
+		border-width: 1px;
+	}
+
+	.primary-toolbar & {
+		-gtk-icon-shadow: none;
+	}
+}
+
+/**************
+ * ComboBoxes *
+ **************/
+combobox {
+	arrow {
+		-gtk-icon-source: -gtk-icontheme($arrow_down);
+		min-height: 16px;
+		min-width: 16px;
+	}
+
+	button {
+		padding-top: 4px;
+		padding-bottom: 4px;
+	}
+}
+
+%needs_attention {
+	animation: needs_attention 150ms ease-in;
+	$_dot_shadow: gtk("@theme_button_foreground_normal");
+	$_dot_shadow_r: 0.5;
+	background-image: radial-gradient(
+		circle,
+		$_dot_color 0%,
+		transparent 5px
+	);
+	background-size: 6px 6px, 6px 6px;
+	background-repeat: no-repeat;
+	background-position: right 3px, right 4px;
+	&:backdrop {
+		background-size: 6px 6px, 0 0;
+	}
+	&:dir(rtl) {
+		background-position: left 3px, left 4px;
+	}
+}
+
+box.linked {
+	entry,
+	button {
+		// if we have a box-shadow, buttons look raised while the
+		// other elements aren't, which looks weird, and we can't really
+		// fix it, so just drop the box shadow in this case.
+		box-shadow: none;
+		@include linked();
+		@include linked-side();
+	}
+}
+stackswitcher.linked {
+	button:not(.flat) {
+		box-shadow: none;
+		@include linked();
+		@include linked-side();
+	}
+}
+
+%undecorated_button {
+	border-color: transparent;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
