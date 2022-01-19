@@ -39,6 +39,7 @@ install_theme () {
 
 # Usage render_theme <colorscheme> <theme-name> <theme-install-target> <colorschemebase>
 render_theme () {
+  ! hash python3 2>/dev/null && echo "python is not available" exit;
   THEME_BUILD_DIR="$(mktemp -d)"
   create_folders "${THEME_BUILD_DIR}"
   cp -R gtk2/* "${THEME_BUILD_DIR}/gtk-2.0/"
@@ -98,14 +99,15 @@ if [ -z "${COLOR_SCHEME}" ]; then
   fi
 else
   THEME_NAME="${COLOR_SCHEME}"
-  # if [ -f "${COLOR_SCHEME_ROOT}/${COLOR_SCHEME}.colors" ]; then
-  #   COLOR_SCHEME="${COLOR_SCHEME_ROOT}/${COLOR_SCHEME}.colors"
-  # elif [ -f "${HOME}/.local/share/color-schemes/${COLOR_SCHEME}.colors" ]; then
-    COLOR_SCHEME="/home/niksingh710/.local/share/color-schemes/${COLOR_SCHEME}.colors"
-  # else
-  #   echo "colorscheme ${COLOR_SCHEME} not found"
-  #   exit 1
-  # fi
+  HOME="/home/"`logname`
+  if [ -f "${COLOR_SCHEME_ROOT}/${COLOR_SCHEME}.colors" ]; then
+    COLOR_SCHEME="${COLOR_SCHEME_ROOT}/${COLOR_SCHEME}.colors"
+  elif [ -f "${HOME}/.local/share/color-schemes/${COLOR_SCHEME}.colors" ]; then
+    COLOR_SCHEME="$HOME/.local/share/color-schemes/${COLOR_SCHEME}.colors"
+  else
+    echo "colorscheme ${COLOR_SCHEME} not found"
+    exit 1
+  fi
 fi
 
 render_theme "${COLOR_SCHEME}" "${THEME_NAME}" "${INSTALL_TARGET}" "${COLOR_SCHEME_ROOT}/BreezeLight.colors"
