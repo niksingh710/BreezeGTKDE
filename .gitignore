@@ -1,0 +1,10 @@
+build
+install 
+.clang-format
+CMakeLists.txt.user*
+/build*/
+/compile_commands.json
+.clangd
+.idea
+/cmake-build*
+.cache
